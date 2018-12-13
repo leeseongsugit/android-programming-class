@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">181213_quiz_movie</string>
+    <string name="title_activity_movie_list">MovieListActivity</string>
+</resources>
