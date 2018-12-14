@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import iot.example.com.a181213_quiz_movie.adapter.ListViewAdapter2;
 import iot.example.com.a181213_quiz_movie.form.ListViewItem;
 
 public class MovieListActivity extends AppCompatActivity {
@@ -52,7 +53,7 @@ public class MovieListActivity extends AppCompatActivity {
 //        lv_movieList.setAdapter(adapter);
 
 
-        ListViewAdapter listViewAdpter = new ListViewAdapter(
+        ListViewAdapter2 listViewAdpter = new ListViewAdapter2(
                 MovieListActivity.this,
                 R.layout.listview_item,
                 arrayList);

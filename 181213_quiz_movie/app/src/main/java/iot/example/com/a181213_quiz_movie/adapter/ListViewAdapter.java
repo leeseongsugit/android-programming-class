@@ -1,4 +1,4 @@
-package iot.example.com.a181213_quiz_movie;
+package iot.example.com.a181213_quiz_movie.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import iot.example.com.a181213_quiz_movie.R;
 import iot.example.com.a181213_quiz_movie.form.ListViewItem;
 
 /**
