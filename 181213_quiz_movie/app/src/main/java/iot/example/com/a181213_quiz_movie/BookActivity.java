@@ -153,27 +153,25 @@ public class BookActivity extends AppCompatActivity {
                         if(res_seekBar.getProgress() <= availSeat){
                             seatFlag = 1;
                         }
-                    }else{
-                        Toast.makeText(BookActivity.this, "상영일자 없음", Toast.LENGTH_SHORT).show();
-                    }
-
-                    if(seatFlag == 0){
-                        Toast.makeText(BookActivity.this, "잔여좌석 부족", Toast.LENGTH_SHORT).show();
-                    }
-                    if(timeFlag==1 && seatFlag==1){
-                        Intent intent = new Intent(BookActivity.this, BookActivity.class);
-                        intent.putExtra("movie_year", mYear);
-                        intent.putExtra("movie_month", mMonth);
-                        intent.putExtra("movie_day", mDay);
-                        intent.putExtra("movie_hour", mHour);
-                        intent.putExtra("movie_min", mMin);
-                        intent.putExtra("movie_title", movie_title);
-                        intent.putExtra("movie_seat", res_seekBar.getProgress());
                     }
                 }
+                if(timeFlag == 0){
+                    Toast.makeText(BookActivity.this, "상영일자 없음", Toast.LENGTH_SHORT).show();
 
-
-
+                }
+                if(seatFlag == 0){
+                    Toast.makeText(BookActivity.this, "잔여좌석 부족", Toast.LENGTH_SHORT).show();
+                }
+                if(timeFlag==1 && seatFlag==1){
+                    Intent intent = new Intent(BookActivity.this, BookActivity.class);
+                    intent.putExtra("movie_year", mYear);
+                    intent.putExtra("movie_month", mMonth);
+                    intent.putExtra("movie_day", mDay);
+                    intent.putExtra("movie_hour", mHour);
+                    intent.putExtra("movie_min", mMin);
+                    intent.putExtra("movie_title", movie_title);
+                    intent.putExtra("movie_seat", res_seekBar.getProgress());
+                }
             }
         });
 
