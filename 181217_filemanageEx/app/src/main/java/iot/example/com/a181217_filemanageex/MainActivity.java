@@ -94,7 +94,11 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.button_stop:
                     player.stop();
                     try{
+                        if(player.isPlaying()){
+                            button_play.setText("play");
+                        }
                         player.prepare();
+
                     }catch (Exception e){
                         Log.d("PlayMp3", "mp3 file error");
                     }
