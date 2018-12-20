@@ -17,44 +17,18 @@ public class PlayService extends Service {
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // 액티비티에서 브로드캐스팅 된 인텐트를 리시버가 받아서
-            // 인텐트 안에 저장된 내용을 읽어본다.
             String btn = intent.getStringExtra("btn");
+            String time =intent.getStringExtra("time");
 
-            // 서비스에서 액티비티로 응답하기 위한 인텐트트
             Intent intent1 = new Intent("a181219_musicplayer_quiz.myplayerservice");
-
-            // btn 안의 값이 null 값이 없음, play, stop, pause 중 1
-            if(btn != null) {
-                if(btn.equals("play") || btn.equals("pause")) {
-                    // 현재 파일이 재생중이면
-                    if(player.isPlaying()) {
-                        // 일시 중지 기능을 수행
-                        player.pause();
-
-                        // 일시 중지 기능을 수행한 상태를 인텐트에 기록
-                        intent1.putExtra("state", "pause");
-                    } else {
-                        // 재생 기능 수행
-                        player.start();
-
-                        // 재생 기능을 수행한 상태를 인텐트에 기록
-                        intent1.putExtra("state", "play");
+            if(time!=null){
+                if(time.equals("running_time")){
+                    if(player.isPlaying() && player != null){
+                        intent1.putExtra("cur_time", Integer.parseInt(player.getCurrentPosition()));
+                        intent1.putExtra("full_time", Integer.parseInt(player.getDuration()));
                     }
-                } else if(btn.equals("stop")) {
-                    // 재생을 정지 하는 기능 수행
-                    player.stop();
-                    try {
-                        // 중지 기능을 수행한 상태를 인텐트에 기록
-                        intent1.putExtra("state", "stop");
-                        player.prepare();
-                    } catch(Exception e) {
-                        e.printStackTrace();
-                    }
+                    sendBroadcast(intent1);
                 }
-                // 수행한 상태를 기록한 인텐드를 패키지 내에서
-                // 브로드 캐스팅 한다.
-                sendBroadcast(intent1);
             }
         }
     };

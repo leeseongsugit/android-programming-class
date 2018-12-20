@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     Button button_play, button_stop;
@@ -86,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
                 if (state.equals("play")) {
                     // 재생중임을 표시하는 bStatePlay 변수에 true 저장
                     bStatePlay = true;
+                    if(myAsyncTask == null){
+//                        어싱크태스크 활성
+                    }
                     // 버튼에 표시하는 문자를 pause로 바꾼다.
                     button_play.setText("Pause");
                 } else if (state.equals("pause") || state.equals("stop")) {
@@ -94,12 +99,26 @@ public class MainActivity extends AppCompatActivity {
 
                     // 재생중임을 표시하는 bStatePlay 변수에 false 저장
                     bStatePlay = false;
+                    //어싱크 태스크 비활성
+
                     // 버튼에 표시하는 문자를 play로 바꾼다.
                     button_play.setText("Play");
                 }
             }
+
+            String cur_time = intent.getStringExtra("cur_time");
+            if(cur_time!=null){
+                progressBar.setProgress(Integer.valueOf(cur_time));
+                text_currentTime.setText(transMillsec(Integer.valueOf(cur_time)));
+
+                Log.d("progressBar_test", "cur : " + cur_time);
+            }
         }
     };
+
+    private int transMillsec(Integer integer) {
+        return 0;
+    }
 
     private void setInit() {
         button_play = (Button) findViewById(R.id.button_play);
@@ -130,11 +149,21 @@ public class MainActivity extends AppCompatActivity {
                         // play & pause 버튼이 재생 명령을 인텐트에 포함
                         intent.putExtra("btn", "play");
                     }
+                    if(myTask == null){
+                        myTask = new MyTask();
+                        myTask.execute();
+                    }else{
+                        Toast.makeText(MainActivity.this, "이미 실행중", Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 // stop 버튼
                 case R.id.button_stop:
                     // stop 명령 인텐트에 포함
                     intent.putExtra("btn", "stop");
+                    if(myTask!= null){
+                        myTask.cancel(true);
+                        myTask = null;
+                    }
                     break;
             }
             // 엑티비티에서 서비스의 브로드케스트 리시버에게 인텐트를 전달
@@ -172,19 +201,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     class MyTask extends AsyncTask<Void, Void, Void> {
-
+        Intent intent = new Intent("a181219_musicplayer_quiz.myplayerservice");
         protected Void doInBackground(Void... argu) {
             while(isCancelled() == false) {
-                value++;
-                if(value <= 1000) {
-                    publishProgress();
-                }
-                else {
-                    break;
-                }
-                try{
-                    Thread.sleep(1000);
-                } catch(Exception e) {}
+                SystemClock.sleep(500);
+                sendBroadcast(intent);
+//                if(Integer.parseInt(currentTime) <= Integer.parseInt(fullTime)) {
+//                    publishProgress();
+//                }
+//                else {
+//                    break;
+//                }
+//                try{
+//                    Thread.sleep(1000);
+//                } catch(Exception e) {}
             }
             return null;
         }
