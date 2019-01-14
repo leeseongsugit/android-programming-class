@@ -45,14 +45,17 @@ public class LoginActivity extends AppCompatActivity {
         id = sharedPreferences.getString("key2", "no data");
         pwd = sharedPreferences.getString("key3", "no data");
 
+        id = "root";
+        pwd = "1234";
+
         if(isLogin == true){
             startActivity(loginIntent);
         }
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(et_loginId.getText().toString() == id){
-                    if(et_loginPw.getText().toString() == pwd){
+                if(et_loginId.getText().toString().equals(id)){
+                    if(et_loginPw.getText().toString().equals(pwd)){
 
                         editor.putBoolean("key1", true);
                         editor.commit();

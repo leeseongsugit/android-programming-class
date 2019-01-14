@@ -22,22 +22,28 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
+
 public class MainActivity extends AppCompatActivity {
 
     TextView tv_data;
     ImageView iv_poster;
+    int number = 3;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tv_data = (TextView)findViewById(R.id.tv_data);
-        iv_poster = (ImageView)findViewById(R.id.iv_poster);
+        tv_data = (TextView) findViewById(R.id.tv_data);
+        iv_poster = (ImageView) findViewById(R.id.iv_poster);
+
 
         String url = "http://70.12.110.69:3000";
         HashMap<String, String> map = new HashMap<String, String>();
-        map.put("number","3");
+        map.put("number", Integer.toString(number));
 
         MyHttpTask myHttpTask = new MyHttpTask(url, map);
         myHttpTask.execute();
@@ -69,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 URL text = new URL(url_str);
-                HttpURLConnection http = (HttpURLConnection)text.openConnection();
+                HttpURLConnection http = (HttpURLConnection) text.openConnection();
                 http.setRequestProperty("Content-type",
                         "application/x-www-form-urlencoded;charset=UTF-8");
                 http.setConnectTimeout(10000);
@@ -78,14 +84,14 @@ public class MainActivity extends AppCompatActivity {
                 http.setDoInput(true);
                 http.setDoOutput(true);
 
-                if(map != null && map.size() > 0) {
+                if (map != null && map.size() > 0) {
 
                     Iterator<String> keys = map.keySet().iterator();
 
                     boolean first_query_part = true;
-                    while(keys.hasNext()) {
+                    while (keys.hasNext()) {
 
-                        if(!first_query_part) {
+                        if (!first_query_part) {
                             post_query += "&";
                         }
 
@@ -105,12 +111,12 @@ public class MainActivity extends AppCompatActivity {
                     result = BitmapFactory.decodeStream(http.getInputStream());
 
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 result = null;
             } finally {
-                try{
-                    if(printWriter != null) printWriter.close();
+                try {
+                    if (printWriter != null) printWriter.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -136,9 +142,9 @@ public class MainActivity extends AppCompatActivity {
         String url_str;
         HashMap<String, String> map;
 
+
         public MyHttpTask(String url_str, HashMap<String, String> map) {
             super();
-
             this.url_str = url_str;
             this.map = map;
         }
@@ -153,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 URL text = new URL(url_str);
-                HttpURLConnection http = (HttpURLConnection)text.openConnection();
+                HttpURLConnection http = (HttpURLConnection) text.openConnection();
                 http.setRequestProperty("Content-type",
                         "application/x-www-form-urlencoded;charset=UTF-8");
                 http.setConnectTimeout(10000);
@@ -162,14 +168,14 @@ public class MainActivity extends AppCompatActivity {
                 http.setDoInput(true);
                 http.setDoOutput(true);
 
-                if(map != null && map.size() > 0) {
+                if (map != null && map.size() > 0) {
 
                     Iterator<String> keys = map.keySet().iterator();
 
                     boolean first_query_part = true;
-                    while(keys.hasNext()) {
+                    while (keys.hasNext()) {
 
-                        if(!first_query_part) {
+                        if (!first_query_part) {
                             post_query += "&";
                         }
 
@@ -191,61 +197,116 @@ public class MainActivity extends AppCompatActivity {
                     StringBuffer stringBuffer = new StringBuffer();
                     String line;
 
-                    while((line = bufferedReader.readLine()) != null) {
+                    while ((line = bufferedReader.readLine()) != null) {
                         stringBuffer.append(line);
                     }
                     json = stringBuffer.toString();
-                    try{
-                        String actors = "";
+                    try {
                         JSONObject root = new JSONObject(json);
 
-                        String title = root.getString("title");
-                        JSONArray director = root.getJSONArray("director");
-                        String director1 = director.getString(0);
+                        final String title = root.getString("title");
+                        final JSONArray director = root.getJSONArray("director");
+                        final String[] directors = new String[director.length()];
+                        for (int i = 0; i < director.length(); i++) {
+                            directors[i] = director.getString(i);
+                        }
+
                         JSONArray actor = root.getJSONArray("actor");
-                        for(int i = 0; i < actor.length(); i++){
-                            actors += actor.getString(i)+"   ";
+                        final String[] actors = new String[actor.length()];
+                        for (int i = 0; i < actor.length(); i++) {
+                            actors[i] = actor.getString(i);
                         }
 
                         JSONArray category = root.getJSONArray("category");
-                        String category1 = category.getString(0);
-                        int runningTime = root.getInt("runningTime");
-                        String openDate = root.getString("openDate");
+                        final String[] categories = new String[category.length()];
+                        for (int i = 0; i < category.length(); i++) {
+                            categories[i] = category.getString(i);
+                        }
+                        final int runningTime = root.getInt("runningTime");
+                        final String openDate = root.getString("openDate");
+
+//                        result =
+//                                        "\n제목 :          " + title +
+//                                        "\n감독 :          " + director1 +
+//                                        "\n배우 :          " + actors +
+//                                        "\n장르 :          " + category1+
+//                                        "\n상영시간 :   " + runningTime +
+//                                        "\n개봉일 :       " + openDate;
+                        Realm.init(getApplicationContext());
+                        Realm mRealm = Realm.getDefaultInstance();
+                        if (!title.equals("")) {
+                            mRealm.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    try {
+                                        MovieVO movieVO = realm.createObject(MovieVO.class);
+                                        movieVO.setNumber(number);
+                                        movieVO.setTitle(title);
+                                        DirectorVO dir = new DirectorVO();
+                                        for (int i = 0; i < directors.length; i++) {
+                                            dir.setDirector(directors[i]);
+                                            movieVO.getDirectorList().add(dir);
+                                        }
+                                        ActorVO act = new ActorVO();
+                                        for (int i = 0; i < actors.length; i++) {
+                                            act.setActor(actors[i]);
+                                            movieVO.getActorList().add(act);
+                                        }
+                                        CategoryVO cat = new CategoryVO();
+                                        for (int i = 0; i < categories.length; i++) {
+                                            cat.setCategory(categories[i]);
+                                            movieVO.getCategoryList().add(cat);
+                                        }
+
+                                        movieVO.setRunningTime(runningTime);
+                                        movieVO.setOpenDate(openDate);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            });
+                        }
+                        RealmResults<MovieVO> results = mRealm.where(MovieVO.class)
+                                .equalTo("number", number).findAll();
 
                         result =
-                                        "\n제목 :          " + title +
-                                        "\n감독 :          " + director1 +
-                                        "\n배우 :          " + actors +
-                                        "\n장르 :          " + category1+
-                                        "\n상영시간 :   " + runningTime +
-                                        "\n개봉일 :       " + openDate;
+                                "\n제목 : " + results.get(number).getTitle() +
+                                        "\n감독 : " + results.get(number).getDirectorList() +
+                                        "\n배우 : " + results.get(number).getActorList() +
+                                        "\n장르 : " + results.get(number).getCategoryList() +
+                                        "\n상영시간 : " + results.get(number).getRunningTime() +
+                                        "\n개봉일 : " + results.get(number).getOpenDate();
 
-
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                try{
-                    if(printWriter != null) printWriter.close();
+                try {
+                    if (printWriter != null) printWriter.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
                 try {
-                    if(bufferedReader != null) bufferedReader.close();
+                    if (bufferedReader != null) bufferedReader.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+
+
             return result;
         }
 
         @Override
         protected void onPostExecute(String s) {
             // do something
+
+
             tv_data.setText(s);
             this.cancel(true);
         }
